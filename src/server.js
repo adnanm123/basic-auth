@@ -18,16 +18,10 @@ app.use(cors());
 app.post('/signup', basicAuth, handleSignup);
 app.post('/signin', basicAuth, handleSignin);
 
-
-// Export the sequelize instance
-
-// Routes
-// app.use('/auth', require('./auth/router'));
-
 app.use('*', notFoundHandler);
 app.use(errorHandler);
 
-// Sync the database and start the server
+// start the server
 module.exports = {
   app,
   start: (port) => {

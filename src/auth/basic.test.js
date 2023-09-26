@@ -9,8 +9,6 @@ describe('Basic Auth Middleware Tests', () => {
         username: 'testuser',
         password: 'testpassword',
       });
-
-    // Add your assertions here
   });
 
   it('should extract username and password from the basic auth header for /signin route', async () => {
@@ -18,14 +16,10 @@ describe('Basic Auth Middleware Tests', () => {
     const res = await supertest(app)
       .post('/signin')
       .set('Authorization', `Basic ${validBase64}`);
-
-    // Add your assertions here
   });
 
   it('should return 401 for missing basic auth header', async () => {
     const res = await supertest(app).post('/signup').send({});
-
-    // Add your assertions here
   });
 
   it('should return 401 for incorrect basic auth header', async () => {
@@ -33,8 +27,6 @@ describe('Basic Auth Middleware Tests', () => {
       .post('/signup')
       .set('Authorization', 'Basic invalidbase64')
       .send({});
-
-    // Add your assertions here
   });
 
   it('should return 200 OK for correct basic auth header', async () => {
@@ -43,13 +35,9 @@ describe('Basic Auth Middleware Tests', () => {
       .post('/signup')
       .set('Authorization', `Basic ${validBase64}`)
       .send({});
-
-    // Add your assertions here
   });
 
   it('should call next with "Incorrect path chosen" for an incorrect route', async () => {
     const res = await supertest(app).get('/invalidroute');
-
-    // Add your assertions here
   });
 });
