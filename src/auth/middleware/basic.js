@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const Users = require('../models/users-model');
 
 
-module.exports = async (req, res, next) => {
+module.exports.basicAuth = async (req, res, next) => {
   try {
     if (!req.headers.authorization) {
       throw new Error('Authorization header missing');

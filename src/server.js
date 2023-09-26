@@ -14,9 +14,9 @@ app.use(cors());
 
 // Define and configure your Sequelize instance
 const sequelize = new Sequelize({
-  database: 'your_database_name', // Replace with your actual database name
-  username: 'your_database_username', // Replace with your actual database username
-  password: 'your_database_password', // Replace with your actual database password
+  database: 'adnanmohamud', // Replace with your actual database name
+  username: 'adnanm206', // Replace with your actual database username
+  password: 'Adnaanm123$', // Replace with your actual database password
   host: 'localhost',
   dialect: 'postgres', // Change to your database dialect if not PostgreSQL
 });

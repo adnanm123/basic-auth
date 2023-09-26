@@ -2,7 +2,7 @@
 
 const base64 = require('base-64');
 const bcrypt = require('bcrypt');
-const basicAuthMiddleware = require('../auth/middleware/basic');
+const basicAuth = require('../auth/middleware/basic');
 const { sequelize } = require('../server');
 const Users = require('../auth/models/users-model');
 
@@ -27,19 +27,20 @@ describe('Basic Authentication Middleware', () => {
     // Create a mock user and hashed password for testing
     const mockUser = { username: 'testuser', password: await bcrypt.hash('testpassword', 10) };
     jest.spyOn(Users, 'findOne').mockResolvedValue(mockUser);
-
+  
     const req = {
       headers: { authorization: 'Basic ' + base64.encode('testuser:testpassword') },
     };
     const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
     const next = jest.fn();
-
-    await basicAuthMiddleware(req, res, next);
-
+  
+    await basicAuth(req, res, next); // Use basicAuth middleware function directly here
+  
     expect(Users.findOne).toHaveBeenCalledWith({ where: { username: 'testuser' } });
     expect(req.user).toEqual(mockUser);
     expect(next).toHaveBeenCalled();
   });
+  
 
   it('should return a 403 status with "Invalid User" message when provided username is invalid', async () => {
     jest.spyOn(Users, 'findOne').mockResolvedValue(null);

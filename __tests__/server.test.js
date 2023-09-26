@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app } = require('../src/server'); // Update the path to match your file structure
+const { app, sequelize} = require('../src/server'); // Update the path to match your file structure
 
 describe('Authentication Routes', () => {
   describe('POST /auth/signup', () => {

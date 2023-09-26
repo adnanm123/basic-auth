@@ -1,6 +1,8 @@
-// Update src/auth/router.js
+'use strict';
+
+require('dotenv').config();
 const express = require('express');
-const basicAuth = require('./middleware/basic');
+const { basicAuth } = require('./middleware/basic'); // Make sure the path is correct
 const Users = require('./models/users-model');
 
 const router = express.Router();
