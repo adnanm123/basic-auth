@@ -1,25 +1,34 @@
 'use strict';
 
-require('dotenv').config();
-const express = require('express');
-const { basicAuth } = require('./middleware/basic'); // Make sure the path is correct
-const Users = require('./models/users-model');
+const bcrypt = require('bcrypt');
 
-const router = express.Router();
+const { userModel } = require('./models/index');
 
-// POST route for user signup
-router.post('/signup', async (req, res) => {
+async function handleSignup(req, res, next) {
   try {
-    const user = await Users.create(req.body);
-    res.status(201).json(user);
-  } catch (e) {
-    res.status(403).send('Error Creating User');
-  }
-});
+    const record = await userModel.create(req.body);
+    res.status(200).json(record);
+  } catch (e) { res.status(403).send('Error Creating User'); }
+}
 
-// POST route for user signin
-router.post('/signin', basicAuth, (req, res) => {
-  res.status(200).json(req.user);
-});
+async function handleSignin(req, res, next) {
+  // console.log('router.js: Signing IN', req.path);
+  // console.log(req.username, req.password)
 
-module.exports = router;
+  try {
+    const user = await userModel.findOne({ where: { username: req.username } });
+    const valid = await bcrypt.compare(req.password, user.password);
+    if (valid) {
+      res.status(200).json(user);
+    }
+    else {
+      throw new Error('Invalid User');
+    }
+  } catch (error) { res.status(403).send('Invalid Login'); }
+
+}
+
+module.exports = {
+  handleSignup,
+  handleSignin,
+}

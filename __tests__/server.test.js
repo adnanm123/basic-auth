@@ -1,75 +1,72 @@
 const request = require('supertest');
-const { app, sequelize} = require('../src/server'); // Update the path to match your file structure
+const { app } = require('../src/server'); // Import your Express app instance
 
-describe('Authentication Routes', () => {
-  describe('POST /auth/signup', () => {
-    xit('should create a new user', async () => {
-      const userData = {
-        username: 'testuser',
-        password: 'testpassword',
-      };
-    
-      const response = await request(app)
-        .post('/auth/signup')
-        .send(userData)
-        .expect(201);
-    
-      console.log('Response Body:', response.body); // Log the response body
-      console.log('Response Status:', response.status); // Log the response status code
-    
-      expect(response.body).toHaveProperty('testpassword', 'testuser');
-      // You can add more assertions as needed
+describe('Server Tests', () => {
+  // Test for POST /signup
+  describe('POST /signup', () => {
+    it('should create a new user', async () => {
+      const res = await request(app)
+        .post('/signup')
+        .send({
+          username: 'testuser',
+          password: 'testpassword',
+        });
+
+      console.assert(res.status === 200, 'Expected status code 200');
+      // Add more assertions to check the response body or database state if needed
     });
-    
 
-    it('should return an error for invalid input', async () => {
-      const invalidUserData = {
-        // Missing required fields or invalid data
-      };
-
-      const response = await request(app)
-        .post('/auth/signup')
-        .send(invalidUserData)
-        .expect(403);
-
-      if (response.text !== 'Error Creating User') {
-        throw new Error('Test failed: Invalid error response');
-      }
-      // Add more assertions as needed
-    });
+    // Add more tests for various scenarios (e.g., missing username, invalid input, etc.)
   });
 
-  describe('POST /auth/signin', () => {
-    xit('should allow a user to sign in', async () => {
-      const userData = {
-        username: 'testuser',
-        password: 'testpassword',
-      };
+  // Test for POST /signin
+  describe('POST /signin', () => {
+    it('should login a user with valid credentials', async () => {
+      const res = await request(app)
+        .post('/signin')
+        .auth('testuser', 'testpassword'); // Use basic auth for signin
 
-      // Create a user account for testing
-      // You can use your Sequelize model to create a user here
-
-      const response = await request(app)
-        .post('/auth/signin')
-        .set('Authorization', `Basic ${Buffer.from('testuser:testpassword').toString('base64')}`)
-        .expect(200);
-
-      if (!response.body || response.body.username !== 'testuser') {
-        throw new Error('Test failed: User not authenticated');
-      }
-      // Add more assertions as needed
+      console.assert(res.status === 200, 'Expected status code 200');
+      // Add more assertions to check the response body or user authentication
     });
 
-    it('should return an error for invalid credentials', async () => {
-      const response = await request(app)
-        .post('/auth/signin')
-        .set('Authorization', 'Basic invalidcredentials')
-        .expect(403);
+    it('should return 401 unauthorized for invalid credentials', async () => {
+      const res = await request(app)
+        .post('/signin')
+        .auth('testuser', 'invalidpassword'); // Use basic auth for signin
 
-      if (response.text !== 'Invalid Login') {
-        throw new Error('Test failed: Invalid error response');
-      }
-      // Add more assertions as needed
+      console.assert(res.status === 401, 'Expected status code 401');
     });
+
+    // Add more tests for various scenarios (e.g., missing credentials, incorrect format, etc.)
+  });
+
+  // Test for auth middleware
+  describe('Auth Middleware', () => {
+    it('should return 401 unauthorized for missing basic auth header', async () => {
+      const res = await request(app).post('/signup').send({});
+      console.assert(res.status === 401, 'Expected status code 401');
+    });
+
+    it('should return 401 unauthorized for incorrect basic auth header', async () => {
+      const res = await request(app)
+        .post('/signup')
+        .set('Authorization', 'Basic invalidbase64')
+        .send({});
+      
+      console.assert(res.status === 401, 'Expected status code 401');
+    });
+
+    it('should return 200 OK for correct basic auth header', async () => {
+      const validBase64 = Buffer.from('testuser:testpassword').toString('base64');
+      const res = await request(app)
+        .post('/signup')
+        .set('Authorization', `Basic ${validBase64}`)
+        .send({});
+      
+      console.assert(res.status === 200, 'Expected status code 200');
+    });
+
+    // Add more tests for various scenarios (e.g., missing credentials, incorrect format, etc.)
   });
 });

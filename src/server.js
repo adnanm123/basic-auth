@@ -1,49 +1,39 @@
 'use strict';
 
 const express = require('express');
-const app = express();
 const cors = require('cors');
+const basicAuth = require('./auth/middleware/basic');
+const app = express();
 const notFoundHandler = require('./middleware/404');
 const errorHandler = require('./middleware/500');
-const { Sequelize } = require('sequelize'); // Import Sequelize
+const { handleSignup, handleSignin} = require('./auth/router.js');
 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// Define and configure your Sequelize instance
-const sequelize = new Sequelize({
-  database: 'adnanmohamud', // Replace with your actual database name
-  username: 'adnanm206', // Replace with your actual database username
-  password: 'Adnaanm123$', // Replace with your actual database password
-  host: 'localhost',
-  dialect: 'postgres', // Change to your database dialect if not PostgreSQL
-});
+
+
+app.post('/signup', basicAuth, handleSignup);
+app.post('/signin', basicAuth, handleSignin);
 
 
 // Export the sequelize instance
-module.exports = {
-  app,
-  sequelize, // Export sequelize along with app
-};
 
 // Routes
-app.use('/auth', require('./auth/router'));
+// app.use('/auth', require('./auth/router'));
 
 app.use('*', notFoundHandler);
 app.use(errorHandler);
 
 // Sync the database and start the server
-sequelize.sync()
-  .then(() => {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-      console.log('Database synchronized. Server is running on port', PORT);
+module.exports = {
+  app,
+  start: (port) => {
+    app.listen(port, () => {
+      console.log('Express now running on port:', port);
     });
-  })
-  .catch((err) => {
-    console.error('Database synchronization failed:', err);
-  });
-
+  }
+}
   

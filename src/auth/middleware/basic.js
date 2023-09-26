@@ -1,36 +1,28 @@
 'use strict';
 
-const base64 = require('base-64');
 const bcrypt = require('bcrypt');
-const Users = require('../models/users-model');
+const base64 = require('base-64');
 
+const user = require('../models/index.js')
 
-module.exports.basicAuth = async (req, res, next) => {
-  try {
-    if (!req.headers.authorization) {
-      throw new Error('Authorization header missing');
-    }
-
-    const basicHeaderParts = req.headers.authorization.split(' ');
-    const encodedString = basicHeaderParts.pop();
-    const decodedString = base64.decode(encodedString);
-    const [username, password] = decodedString.split(':');
-
-    const user = await Users.findOne({ where: { username: username } });
-
-    if (!user) {
-      throw new Error('Invalid User');
-    }
-
-    const valid = await bcrypt.compare(password, user.password);
-
-    if (!valid) {
-      throw new Error('Invalid Password');
-    }
-
-    req.user = user;
+async function basicAuth(req, res, next) {
+  if (req.path === '/signup') {
+    if (req.body.password) {req.body.password = await bcrypt.hash(req.body.password, 10);}
     next();
-  } catch (error) {
-    res.status(403).send('Invalid Login');
+  } else if (req.path === '/signin') {
+    console.log('basic.js: signin', req.body)
+    let basicHeaderParts = req.headers.authorization.split(' ');  // ['Basic', 'am9objpmb28=']
+    let encodedString = basicHeaderParts.pop();  // am9objpmb28=
+    let decodedString = base64.decode(encodedString); // "username:password"
+    let [username, password] = decodedString.split(':'); // username, password
+    req.username = username;
+    req.password = password
+
+    next();
+  } else {
+    next('Incorrect path chosen')
   }
-};
+
+}
+
+module.exports = basicAuth;
