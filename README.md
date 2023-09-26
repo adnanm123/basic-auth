@@ -52,4 +52,4 @@ The project structure is organized as follows:
 - __tests__/: Contains unit tests for the authentication middleware.
 - README.md: This README file.
 
-[Deployed Link](https://adnan-basic-auth.onrender.com)
+![Lab 6 UML](lab6uml.png)
